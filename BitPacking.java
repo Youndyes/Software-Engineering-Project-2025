@@ -23,7 +23,7 @@ public final class BitPacking {
 
         long totalBits = (long) n * k;
         int wordCount = (int) ((totalBits + 31) >>> 5);
-        if (wordCount == 0) wordCount = 1;
+        if (wordCount == 0) wordCount = 1; // au moins un mot
         this.words = new int[wordCount];
 
         if (mode == Mode.OVERLAP) {
