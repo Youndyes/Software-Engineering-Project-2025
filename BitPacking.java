@@ -30,8 +30,8 @@ public final class BitPacking {
             // écriture avec chevauchement
             packOverlap(src);
         } else {
-            // nous l'implémenterons plus tard
-            throw new UnsupportedOperationException("NO_OVERLAP pas encore implémenté");
+            // écriture sans chevauchement
+            packNoOverlap(src);
         }
     }
 
@@ -53,8 +53,11 @@ public final class BitPacking {
                 return (high << bitsInFirst) | low;
             }
         } else {
-            // implémentation plus tard
-            throw new UnsupportedOperationException("NO_OVERLAP pas encore implémenté");
+            int vpw = 32 / k;
+            if (vpw <= 0) throw new IllegalStateException("k > 32 non supporté");
+            int wordIndex = i / vpw;
+            int bitOffset = (i % vpw) * k;
+            return (words[wordIndex] >>> bitOffset) & mask(k);
         }
     }
 
@@ -100,6 +103,21 @@ public final class BitPacking {
                 words[wi + 1] |= (val >>> b1) & mask(b2);
             }
             bitPtr += k;
+        }
+    }
+    // écriture sans chevauchement
+    private void packNoOverlap(int[] src) {
+        int vpw = 32 / k;                       // values per word
+        if (vpw <= 0) throw new IllegalStateException("k > 32 non supporté");
+
+        int wordCount = (n + vpw - 1) / vpw;    // ceil(n / vpw)
+        this.words = new int[wordCount];
+
+        for (int i = 0; i < n; i++) {
+            int wordIndex = i / vpw;
+            int bitOffset = (i % vpw) * k;
+            int val = src[i] & mask(k);
+            words[wordIndex] |= (val << bitOffset); // tient toujours dans 1 mot
         }
     }
 }

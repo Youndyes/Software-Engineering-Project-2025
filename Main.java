@@ -2,7 +2,7 @@ public class Main {
     public static void main(String[] args) {
         int[] src = {5, 12, 8, 3, 14, 7};
 
-        BitPacking bp = BitPacking.of(BitPacking.Mode.OVERLAP);
+        BitPacking bp = BitPacking.of(BitPacking.Mode.NO_OVERLAP);
         bp.compress(src);
 
         int[] out = new int[src.length];
