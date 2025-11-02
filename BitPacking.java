@@ -67,7 +67,7 @@ public final class BitPacking {
             // nb d'overflow avant i
             int ovBefore    = prefixOv[i];
             int smallBefore = i - ovBefore;
-            int bitsBefore  = i /*flags*/ + smallBefore * kPrime + ovBefore * bitsIdx;
+            int bitsBefore  = i  + smallBefore * kPrime + ovBefore * bitsIdx;
 
             // lire 1 bit de flag à offset bitsBefore
             int wi = bitsBefore >>> 5, bo = bitsBefore & 31;
@@ -123,7 +123,6 @@ public final class BitPacking {
     }
 
     public int size() { return n; }
-    public int bitsPerValue() { return k; }
 
 
     // gestion des masques
@@ -341,14 +340,6 @@ public final class BitPacking {
     // Taille brute sans compression (32 bits par entier)
     public static long rawBits(int n) { return 32L * n; }
 
-    // Taille compressée
-    public long compressedBits() {
-        if (mode == Mode.OVERLAP || mode == Mode.NO_OVERLAP) return (long) n * k;
-        // Pour overflow on calcule la taille
-        long mainBits = (long) n + (long)(n - nbOverflow) * kPrime + (long) nbOverflow * bitsIdx;
-        long ovBits   = (long) nbOverflow * kOverflow;
-        return mainBits + ovBits;
-    }
 
     // Formule / seuil expliqués dans le rapport
     public static double breakEvenBandwidthBitsPerSec(long sRaw, long sComp, long tCompNs, long tDecompNs) {
@@ -358,9 +349,7 @@ public final class BitPacking {
         return (double) savedBits / (cpuNs * 1e-9); // bits / seconde
     }
 
-    public static double totalTimeSeconds(long sizeBits, double latencySec, double bandwidthBitsPerSec) {
-        return latencySec + sizeBits / bandwidthBitsPerSec;
-    }
+
 
     public long transmittedBits() { return (words == null) ? 0L : (long) words.length * 32L; }
 
